@@ -58,12 +58,20 @@ def search_dir(path):
             if not database_cursor.fetchall():
                 database_cursor.execute("INSERT INTO pics_sum VALUES ( '" + md5sum + "' ) ")
                 database.commit()
+                try:
+                    os.mkdir(d_dir + year)
+                except FileExistsError:
+                    pass
+                try:
+                    os.mkdir(d_dir + year + month)
+                except FileExistsError:
+                    pass
                 if os.path.isfile(s_dir + year + month + file_name):
                     i = 0
                     while os.path.isfile(s_dir + year + month + file_name + i):
                         i += 1
                     shutil.copyfile(path + content, d_dir + year + month + file_name + i)
-                shutil.copyfile(path + content, d_dir + year + month + file_name + i)
+                shutil.copyfile(path + content, d_dir + year + month + file_name)
             if options.remove:
                 os.remove(path + content)
         else:
