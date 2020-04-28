@@ -2,7 +2,7 @@
 from optparse import OptionParser
 import os
 import shutil
-import subprocess
+import json
 
 
 # Parsing the arguments for the directory of unsorted pictures and the directory of the sorted.
@@ -22,21 +22,23 @@ parser.add_option("-p", "--only-pictures", dest="pics_only", action="store_true"
 s_dir = options.s_dir
 d_dir = options.d_dir
 
-pic_types = (".png", ".jpeg", ".jpg", ".gif", ".webp", ".tiff", ".psd", ".raw", ".bmp", ".heif", ".indd", "jp2",
-             ".svg", ".ai", ".eps", ".pdf", ".jpe", ".jif", ".jfif", ".jfi", ".tif", ".arw", "cr2", "k25", ".dib",
-             "ind", "indt", "j2k", "jpf", "jpx", "jpm", "mj2", "svgz")
+pic_types = (".png", ".jpeg", ".jpg", ".gif", ".webp", ".tiff", ".psd", ".raw", ".bmp", ".heif", ".indd", ".jp2",
+             ".svg", ".ai", ".eps", ".pdf", ".jpe", ".jif", ".jfif", ".jfi", ".tif", ".arw", ".cr2", ".k25", ".dib",
+             ".ind", ".indt", ".j2k", ".jpf", ".jpx", ".jpm", ".mj2", ".svgz")
 
 
 # Recursive Function which search a dir for pics processes them and returns the sub dirs.
 def search_dir(path):
     if options.pics_only:
-        # Checking for pics and directorys
+        # Checking for pics and dirs
         dir_content = [item for item in os.listdir(path) if not os.path.isfile(path + item) or item.endswith(pic_types)]
     else:
         dir_content = os.listdir(path)
     for content in dir_content:
         if os.path.isfile(path + content):
-            print(content)
+            # Getting the Metainformation needed to get the age of the file
+            infos = json.loads(os.popen("mediainfo " + path + content + " -f --Output=JSON").read())
+            print(infos["media"]["track"][0]["File_Modified_Local"])
             if options.remove:
                 os.remove(path + content)
         else:
